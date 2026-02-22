@@ -1,0 +1,20 @@
+FROM debian:bookworm
+
+RUN cat <<EOF > /etc/apt/sources.list.d/source.sources
+Types: deb-src
+# http://snapshot.debian.org/archive/debian/20250428T000000Z
+URIs: http://deb.debian.org/debian
+Suites: bookworm bookworm-updates
+Components: main
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+EOF
+
+RUN apt update \
+&& apt build-dep -y ffmpeg \
+&& apt install -y git
+
+RUN cd /tmp \
+&& git clone --depth 1 https://code.ffmpeg.org/Kwiboo/FFmpeg.git -b v4l2-request-n8.0.1 ffmpeg \
+&& cd ffmpeg \
+&& ./configure --enable-version3 --disable-debug \
+&& make -j4
