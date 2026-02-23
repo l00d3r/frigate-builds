@@ -1,0 +1,30 @@
+name: FFmpeg
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  ffmpeg:
+
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile.ffmpeg --tag binaries:ffmpeg
+    - name: Extract artifacts
+      run: |
+        docker create --name ffmpeg-binaries binaries:ffmpeg
+        docker cp ffmpeg-binaries:/tmp/ffmpeg/ffmpeg /tmp/
+        docker cp ffmpeg-binaries:/tmp/ffmpeg/ffprobe /tmp/
+        docker rm ffmpeg-binaries
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ffmpeg
+        path: |
+          /tmp/ffmpeg
+          /tmp/ffprobe
