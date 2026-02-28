@@ -13,6 +13,13 @@ RUN apt update \
 && apt build-dep -y ffmpeg \
 && apt install -y git
 
+# Override original x264.pc to use static linking
+RUN mkdir -p /tmp/ffbuild/pkgconfig/
+ADD static-x264.pc /tmp/ffbuild/pkgconfig/x264.pc
+
+RUN rm /usr/lib/aarch64-linux-gnu/libx264.so*
+ENV PKG_CONFIG_PATH=/tmp/ffbuild/pkgconfig
+
 RUN cd /tmp \
 && git clone --depth 1 https://code.ffmpeg.org/Kwiboo/FFmpeg.git -b v4l2-request-n8.0.1 ffmpeg \
 && cd ffmpeg \
